@@ -28,9 +28,14 @@ namespace ndn {
 
 NS_LOG_COMPONENT_DEFINE("ndn.StrategyChoiceHelper");
 
+const bool debug = false;
+
 void
 StrategyChoiceHelper::sendCommand(const ControlParameters& parameters, Ptr<Node> node)
 {
+  if(debug) {
+	std::cout << ">>>>>> inside StrategyChoiceHelper::sendCommand" << std::endl;
+  }
   NS_LOG_DEBUG("Strategy choice command was initialized");
   Block encodedParameters(parameters.wireEncode());
 
@@ -43,6 +48,7 @@ StrategyChoiceHelper::sendCommand(const ControlParameters& parameters, Ptr<Node>
   Ptr<L3Protocol> L3protocol = node->GetObject<L3Protocol>();
   auto strategyChoiceManager = L3protocol->getStrategyChoiceManager();
   strategyChoiceManager->onStrategyChoiceRequest(*command);
+  std::cout << "Forwarding strategy installed in node " << node->GetId() << std::endl;
   NS_LOG_DEBUG("Forwarding strategy installed in node " << node->GetId());
 }
 
@@ -57,6 +63,9 @@ StrategyChoiceHelper::Install(const NodeContainer& c, const Name& namePrefix, co
 void
 StrategyChoiceHelper::Install(Ptr<Node> node, const Name& namePrefix, const Name& strategy)
 {
+  if(debug) {
+	std::cout << ">>>>>> inside StrategyChoiceHelper::Install -> namePrefix" << namePrefix << std::endl;
+  }
   ControlParameters parameters;
   parameters.setName(namePrefix);
   NS_LOG_DEBUG("Node ID: " << node->GetId() << " with forwarding strategy " << strategy);
