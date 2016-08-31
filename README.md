@@ -19,6 +19,10 @@ If you need NS_LOG output run ./waf within ns-3 with the following:
 
 `./waf configure -d debug --enable-examples`
 
+## Goal for this project
+
+The goal for this project is to find a new multipath forwarding strategy for Content-Centric Networking in Vehicular ad-hoc Networks 
+
 ---------------------------------------------
 
 For more information, including downloading and compilation instruction, please refer to
