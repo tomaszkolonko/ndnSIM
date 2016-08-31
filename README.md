@@ -1,24 +1,24 @@
 ndnSIM
 ======
 
-[![Build Status](https://travis-ci.org/named-data-ndnSIM/ndnSIM.svg)](https://travis-ci.org/named-data-ndnSIM/ndnSIM)
+## Prerequisites
 
-A new release of [NS-3 based Named Data Networking (NDN) simulator](http://ndnsim.net/1.0/)
-went through extensive refactoring and rewriting.  The key new features of the new
-version:
+You need to have a working ns-3 installation with pybindgen. If you have it already just replace the ndnSIM folder within ns-3/src/ by cloning this repository into the correct location.
 
-- Packet format changed to [NDN Packet Specification](http://named-data.net/doc/ndn-tlv/)
+Otherwise install everything.
 
-- ndnSIM uses implementation of basic NDN primitives from
-  [ndn-cxx library (NDN C++ library with eXperimental eXtensions)](http://named-data.net/doc/ndn-cxx/)
+## installation
 
-- All NDN forwarding and management is implemented directly using source code of
-  [Named Data Networking Forwarding Daemon (NFD)](http://named-data.net/doc/NFD/)
+Go to: http://mohittahiliani.blogspot.ch/2015/10/ns-3-installing-ndnsim-on-ubuntu.html
 
-- Allows [simulation of real applications](http://ndnsim.net/2.1/guide-to-simulate-real-apps.html)
-  written against ndn-cxx library
+Download the script and change line 51 to:
 
-[ndnSIM documentation](http://ndnsim.net)
+git clone --recursive https://github.com/tomaszkolonko/ndnSIM.git ns-3/src/ndnSIM
+
+If you need NS_LOG output run ./waf within ns-3 with the following:
+
+`./waf configure -d debug --enable-examples`
+
 ---------------------------------------------
 
 For more information, including downloading and compilation instruction, please refer to
