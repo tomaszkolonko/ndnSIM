@@ -48,48 +48,26 @@ const bool debug = true;
 //   return face;
 // }
 
-void printNodes(NodeContainer nodes)
+void printNodes(NodeContainer nodes, int nodeNum)
 {
-	std::cout << "**********************************************" << std::endl;
-	  std::cout << "node(0) has " << (*nodes.Get(0)).GetNDevices() << " faces." << std::endl;
-	  std::cout << "node(1) has " << (*nodes.Get(1)).GetNDevices() << " faces." << std::endl;
-	  std::cout << "node(2) has " << (*nodes.Get(2)).GetNDevices() << " faces." << std::endl;
-	  std::cout << "node(3) has " << (*nodes.Get(3)).GetNDevices() << " faces." << std::endl;
-	  std::cout << "node(4) has " << (*nodes.Get(4)).GetNDevices() << " faces." << std::endl;
-	  std::cout << "**********************************************" << std::endl;
+  std::cout << "**********************************************" << std::endl;
+  for(int i = 0; i < nodeNum; i++)
+  {
+    std::cout << "node(" << i << ") has " << (*nodes.Get(i)).GetNDevices() << " faces." << std::endl;
+  }
+  std::cout << "**********************************************" << std::endl;
 
-	  std::cout << "**********************************************" << std::endl;
-	  std::cout << "node: " << (*nodes.Get(0)).GetId() << " with faces: ";
-	  for(uint32_t i = 0; i < (*nodes.Get(0)).GetNDevices(); i++)
-	  {
-		  std::cout << (*nodes.Get(0)->GetDevice(i)).GetTypeId() << "  ";
-	  }
-	  std::cout << std::endl;
-	  std::cout << "node: " << (*nodes.Get(1)).GetId() << " with faces: ";
-	  for(uint32_t i = 0; i < (*nodes.Get(1)).GetNDevices(); i++)
-	  {
-		  std::cout << (*nodes.Get(0)->GetDevice(i)).GetTypeId() << "  ";
-	  }
-	  std::cout << std::endl;
-	  std::cout << "node: " << (*nodes.Get(2)).GetId() << " with faces: ";
-	  for(uint32_t i = 0; i < (*nodes.Get(2)).GetNDevices(); i++)
-	  {
-		  std::cout << (*nodes.Get(0)->GetDevice(i)).GetTypeId() << "  ";
-	  }
-	  std::cout << std::endl;
-	  std::cout << "node: " << (*nodes.Get(3)).GetId() << " with faces: ";
-	  for(uint32_t i = 0; i < (*nodes.Get(3)).GetNDevices(); i++)
-	  {
-		  std::cout << (*nodes.Get(0)->GetDevice(i)).GetTypeId()  << "  ";
-	  }
-	  std::cout << std::endl;
-	  std::cout << "node: " << (*nodes.Get(4)).GetId() << " with faces: ";
-	  for(uint32_t i = 0; i < (*nodes.Get(4)).GetNDevices(); i++)
-	  {
-		  std::cout << (*nodes.Get(0)->GetDevice(i)).GetTypeId() << "  ";
-	  }
-	  std::cout << std::endl;
-	  std::cout << "**********************************************" << std::endl;
+  std::cout << "**********************************************" << std::endl;
+  for(int i = 0; i < nodeNum; i++)
+  {
+    std::cout << "node: " << (*nodes.Get(i)).GetId() << " with faces: ";
+    for(uint32_t n = 0; n < (*nodes.Get(i)).GetNDevices(); n++)
+    {
+      std::cout << (*nodes.Get(i)->GetDevice(n)).GetTypeId() << "  ";
+    }
+    std::cout << std::endl;
+  }
+  std::cout << "**********************************************" << std::endl;
 }
 
 void showPosition (Ptr<Node> node, double deltaTime)
@@ -113,8 +91,10 @@ main(int argc, char* argv[])
 
     LogComponentEnable("UdpEchoClientApplication", LOG_LEVEL_INFO);
     LogComponentEnable("UdpEchoServerApplication", LOG_LEVEL_INFO);
-    LogComponentEnable("ndn.StrategyChoiceHelper", LOG_LEVEL_DEBUG);
-    LogComponentEnable("nfd.StrategyChoiceManager", LOG_LEVEL_DEBUG);
+    // LogComponentEnable("ndn.Consumer", LOG_LEVEL_DEBUG);
+    // LogComponentEnable("ndn.Producer", LOG_LEVEL_DEBUG);
+    // LogComponentEnable("ndn.StrategyChoiceHelper", LOG_LEVEL_DEBUG);
+    // LogComponentEnable("nfd.StrategyChoiceManager", LOG_LEVEL_DEBUG);
     // LogComponentEnable("nfd.Forwarder", LOG_LEVEL_DEBUG);
 
   // disable fragmentation
@@ -125,7 +105,7 @@ main(int argc, char* argv[])
 
   std::cout.precision (2);
   std::cout.setf (std::ios::fixed);
-  int nodeNum = 5;
+  int nodeNum = 3;
 
   double deltaTime = 10;
   std::string traceFile1 = "src/ndnSIM/examples/trace-files/ndn-simple-wifi-tracefile1";
@@ -162,22 +142,18 @@ main(int argc, char* argv[])
   NqosWifiMacHelper wifiMacHelper = NqosWifiMacHelper::Default();
   wifiMacHelper.SetType("ns3::AdhocWifiMac");
 
-  Ptr<Node> n0 = CreateObject<Node> ();
-  Ptr<Node> n1 = CreateObject<Node> ();
-  Ptr<Node> n2 = CreateObject<Node> ();
-  Ptr<Node> n3 = CreateObject<Node> ();
-  Ptr<Node> n4 = CreateObject<Node> ();
-
   NodeContainer nodes;
-  nodes.Add(n0);
-  nodes.Add(n1);
-  nodes.Add(n2);
-  nodes.Add(n3);
-  nodes.Add(n4);
+  Ptr<Node> node[nodeNum];
 
-  if(debug) printNodes(nodes);
+  // Nodes are being created as in variable nodeNum defines and added to an array of pointers
+  // and to a nodeContainer for further processing.
+  for(int i = 0; i < nodeNum; i++) {
+	  node[i] = CreateObject<Node> ();
+	  nodes.Add(node[i]);
+  }
 
-  ////////////////
+  if(debug) printNodes(nodes, nodeNum);
+
   ///////////////
   // 1. Install Wifi
   NetDeviceContainer wifiNetDevices = wifi.Install(wifiPhyHelper, wifiMacHelper, nodes);
@@ -212,9 +188,9 @@ main(int argc, char* argv[])
   ndn::AppHelper producerHelper("ns3::ndn::Producer");
   producerHelper.SetPrefix("/");
   producerHelper.SetAttribute("PayloadSize", StringValue("1200"));
-  producerHelper.Install(nodes.Get(4));
+  producerHelper.Install(nodes.Get(2));
 
-  if(debug) printNodes(nodes);
+  if(debug) printNodes(nodes, nodeNum);
 
   ndn::L3RateTracer::InstallAll("rate-trace.txt", Seconds(1));
 
