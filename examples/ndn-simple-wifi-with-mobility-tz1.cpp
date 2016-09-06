@@ -63,7 +63,7 @@ void printNodes(NodeContainer nodes, int nodeNum)
     std::cout << "node: " << (*nodes.Get(i)).GetId() << " with faces: ";
     for(uint32_t n = 0; n < (*nodes.Get(i)).GetNDevices(); n++)
     {
-      std::cout << (*nodes.Get(i)->GetDevice(n)).GetTypeId() << "  ";
+      std::cout << (*nodes.Get(i)->GetDevice(n)).GetAddress () << "  ";
     }
     std::cout << std::endl;
   }
@@ -106,7 +106,7 @@ main(int argc, char* argv[])
   std::cout.precision (2);
   std::cout.setf (std::ios::fixed);
   // if this number is changed, you will need to update the consumerHelper and producerHelper-install methods
-  int nodeNum = 4;
+  int nodeNum = 5;
 
   double deltaTime = 10;
   std::string traceFile1 = "src/ndnSIM/examples/trace-files/ndn-simple-wifi-tracefile1";
@@ -175,6 +175,12 @@ main(int argc, char* argv[])
   ndnHelper.SetDefaultRoutes(true);
   ndnHelper.Install(nodes);
 
+  // Adding specific routes does not yield wanted results... probably it's the strategy that decides
+  // what is accepted at which node.
+  // AddRoute(Ptr<Node> node, const Name& prefix, uint32_t faceId, int32_t metric);
+  // ndn::FibHelper::AddRoute(node[0], "/", 256, 27); // link to n1
+  // ndn::FibHelper::AddRoute(node[0], "/", 256, 34);
+
   // Set BestRoute strategy
   ndn::StrategyChoiceHelper::Install(nodes, "/", "/localhost/nfd/strategy/multicast");
 
@@ -183,13 +189,13 @@ main(int argc, char* argv[])
 
   ndn::AppHelper consumerHelper("ns3::ndn::ConsumerCbr");
   consumerHelper.SetPrefix("/test/prefix");
-  consumerHelper.SetAttribute("Frequency", DoubleValue(5.0));
+  consumerHelper.SetAttribute("Frequency", DoubleValue(10.0));
   consumerHelper.Install(nodes.Get(0));
 
   ndn::AppHelper producerHelper("ns3::ndn::Producer");
   producerHelper.SetPrefix("/");
   producerHelper.SetAttribute("PayloadSize", StringValue("1200"));
-  producerHelper.Install(nodes.Get(3));
+  producerHelper.Install(nodes.Get(4));
 
   if(debug) printNodes(nodes, nodeNum);
 
@@ -198,6 +204,14 @@ main(int argc, char* argv[])
   Simulator::Stop(Seconds(3));
 
   Simulator::Run();
+  /*
+  if(debug)
+  {
+	  shared_ptr<fib> fib = forwarder.getFib();
+	  std::cout << "contents of FIB: " << fib.size();
+  }
+  */
+
   Simulator::Destroy();
 
   return 0;
