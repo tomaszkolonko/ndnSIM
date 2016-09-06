@@ -90,6 +90,9 @@ FibHelper::AddRoute(Ptr<Node> node, const Name& prefix, shared_ptr<Face> face, i
   NS_LOG_LOGIC("[" << node->GetId() << "]$ route add " << prefix << " via " << face->getLocalUri()
                    << " metric " << metric);
 
+
+  std::cout << "FibHelper::AddRoute node [" << node->GetId() << "]$ route add " << prefix << " via " << face->getLocalUri()
+                           << " metric " << metric << std::endl;
   // Get L3Protocol object
   Ptr<L3Protocol> L3protocol = node->GetObject<L3Protocol>();
   // Get the forwarder instance
