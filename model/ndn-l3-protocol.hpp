@@ -37,6 +37,7 @@ namespace nfd {
 class Forwarder;
 class FibManager;
 class StrategyChoiceManager;
+// http://www.boost.org/doc/libs/1_61_0/doc/html/property_tree.html
 typedef boost::property_tree::ptree ConfigSection;
 namespace pit {
 class Entry;

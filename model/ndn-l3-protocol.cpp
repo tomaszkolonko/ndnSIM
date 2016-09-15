@@ -277,7 +277,7 @@ L3Protocol::initializeManagement()
   tablesConfig.ensureTablesAreConfigured();
 
   // add FIB entry for NFD Management Protocol
-  shared_ptr<fib::Entry> entry = forwarder->getFib().insert("/localhost/nfd").first;
+  shared_ptr<fib::Entry> entry = forwarder->getFib().insert("/localhost/nfd", "testMacAddress").first;
   entry->addNextHop(m_impl->m_internalFace, 0);
 }
 
