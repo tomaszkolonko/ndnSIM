@@ -47,10 +47,15 @@ namespace ns3 {
 namespace ndn {
 
 NS_LOG_COMPONENT_DEFINE("ndn.FibHelper");
+const bool debug = true;
 
 void
 FibHelper::AddNextHop(const ControlParameters& parameters, Ptr<Node> node)
 {
+  if(debug) {
+	  std::cout << "INSIDE FibHelper::AddNextHop(const ControlParameters&, Ptr<Node>)" << std::endl;
+	  std::cout << "Add Next Hop command was initialized" << std::endl;
+  }
   NS_LOG_DEBUG("Add Next Hop command was initialized");
   Block encodedParameters(parameters.wireEncode());
 
@@ -102,6 +107,7 @@ FibHelper::AddRoute(Ptr<Node> node, const Name& prefix, shared_ptr<Face> face, i
   parameters.setName(prefix);
   parameters.setFaceId(face->getId());
   parameters.setCost(metric);
+  // TODO do we need to set macAddress???
 
   AddNextHop(parameters, node);
 }

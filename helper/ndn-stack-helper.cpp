@@ -36,6 +36,8 @@
 
 NS_LOG_COMPONENT_DEFINE("ndn.StackHelper");
 
+const bool debug = true;
+
 namespace ns3 {
 namespace ndn {
 
@@ -146,6 +148,9 @@ StackHelper::Install(Ptr<Node> node) const
 {
   Ptr<FaceContainer> faces = Create<FaceContainer>();
 
+  const bool STACKHELPER_INSTALL_DEBUG = true;
+  if(STACKHELPER_INSTALL_DEBUG) std::cout << "INSIDE StackHelper::Install(Ptr<Node> node) const:  " << std::endl;
+
   if (node->GetObject<L3Protocol>() != 0) {
     NS_FATAL_ERROR("Cannot re-install NDN stack on node "
                    << node->GetId());
@@ -154,6 +159,13 @@ StackHelper::Install(Ptr<Node> node) const
 
   Ptr<L3Protocol> ndn = m_ndnFactory.Create<L3Protocol>();
 
+  if(STACKHELPER_INSTALL_DEBUG) {
+	  std::cout << "before ndn->getConfig().put(whatever)" << ndn->GetTypeId() << std::endl;
+  }
+
+  // typedef boost::property_tree::ptree ConfigSection;
+  // And ConfigSelection is what ndn->getConfig() returns
+  // therefore ndn->getConfig().put() is operation on boost::property_tree::ptree
   if (m_isRibManagerDisabled) {
     ndn->getConfig().put("ndnSIM.disable_rib_manager", true);
   }
@@ -172,13 +184,19 @@ StackHelper::Install(Ptr<Node> node) const
 
   ndn->getConfig().put("tables.cs_max_packets", (m_maxCsSize == 0) ? 1 : m_maxCsSize);
 
-  // Create and aggregate content store if NFD's contest store has been disabled
-  if (m_maxCsSize == 0) {
-    ndn->AggregateObject(m_contentStoreFactory.Create<ContentStore>());
+  if(STACKHELPER_INSTALL_DEBUG) {
+  	  std::cout << "middle 1  ndn->getConfig().put(whatever):  "<< ndn->GetTypeId() << std::endl;
   }
 
+  // Create and aggregate content store if NFD's contest store has been disabled
   // Aggregate L3Protocol on node (must be after setting ndnSIM CS)
+
+  // Calls FibManager::FibManager
   node->AggregateObject(ndn);
+
+  if(STACKHELPER_INSTALL_DEBUG) {
+  	  std::cout << "middle 2  ndn->getConfig().put(whatever):  "<< ndn->GetTypeId() << std::endl;
+  }
 
   for (uint32_t index = 0; index < node->GetNDevices(); index++) {
     Ptr<NetDevice> device = node->GetDevice(index);
@@ -190,6 +208,9 @@ StackHelper::Install(Ptr<Node> node) const
     faces->Add(this->createAndRegisterFace(node, ndn, device));
   }
 
+  if(STACKHELPER_INSTALL_DEBUG) {
+  	  std::cout << "after  ndn->getConfig().put(whatever):  "<< ndn->GetTypeId() << std::endl;
+  }
   return faces;
 }
 
@@ -308,6 +329,7 @@ StackHelper::createAndRegisterFace(Ptr<Node> node, Ptr<L3Protocol> ndn, Ptr<NetD
     if (device->GetInstanceTypeId() == item.first ||
         device->GetInstanceTypeId().IsChildOf(item.first)) {
       face = item.second(node, ndn, device);
+
       if (face != 0)
         break;
     }
@@ -317,9 +339,19 @@ StackHelper::createAndRegisterFace(Ptr<Node> node, Ptr<L3Protocol> ndn, Ptr<NetD
     face = DefaultNetDeviceCallback(node, ndn, device);
   }
 
+  // print some information about the node and faces
+  if(debug) {
+    std::cout << "INSIDE StackHelper::createAndRegisterFace" << std::endl;
+    std::cout << "node=" << node->GetId() << std::endl;
+    std::cout << "device=" << device->GetAddress() << std::endl;
+  }
+
+
   if (m_needSetDefaultRoutes) {
     // default route with lowest priority possible
+	if(debug) std::cout << "BEFORE first call to FibHelper::AddRoute()" << std::endl;
     FibHelper::AddRoute(node, "/", face, std::numeric_limits<int32_t>::max());
+    if(debug) std::cout << "AFTER first call to FibHelper::AddRoute()" << std::endl;
   }
   return face;
 }
