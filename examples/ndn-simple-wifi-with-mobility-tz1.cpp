@@ -70,21 +70,6 @@ void printNodes(NodeContainer nodes, int nodeNum)
   std::cout << "**********************************************" << std::endl;
 }
 
-void showPosition (Ptr<Node> node, double deltaTime)
-{
-  uint32_t nodeId = node->GetId ();
-  Ptr<MobilityModel> mobModel = node->GetObject<MobilityModel> ();
-  Vector3D pos = mobModel->GetPosition ();
-  Vector3D speed = mobModel->GetVelocity ();
-  std::cout << "At " << Simulator::Now ().GetSeconds () << " node " << nodeId
-            << ": Position(" << pos.x << ", " << pos.y << ", " << pos.z
-            << ");   Speed(" << speed.x << ", " << speed.y << ", " << speed.z
-            << ")" << std::endl;
-
-  Simulator::Schedule (Seconds (deltaTime), &showPosition, node, deltaTime);
-}
-
-
 int
 main(int argc, char* argv[])
 {
@@ -166,8 +151,9 @@ main(int argc, char* argv[])
   	  Ns2MobilityHelper ns2 = Ns2MobilityHelper (currentTraceFile);
   	  ns2.Install ();
 
-  // 3. Install NDN stack
+  // 3. Install NDN stack -> L3Protocol
   NS_LOG_INFO("Installing NDN stack");
+  if(debug) std::cout << "INSIDE MAIN: About to install NDN stack" << std::endl;
   ndn::StackHelper ndnHelper;
   // ndnHelper.AddNetDeviceFaceCreateCallback (WifiNetDevice::GetTypeId (), MakeCallback
   // (MyNetDeviceFaceCallback));
@@ -198,6 +184,7 @@ main(int argc, char* argv[])
   producerHelper.Install(nodes.Get(4));
 
   if(debug) printNodes(nodes, nodeNum);
+
 
   ndn::L3RateTracer::InstallAll("rate-trace.txt", Seconds(1));
 
